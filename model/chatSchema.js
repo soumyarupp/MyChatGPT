@@ -32,7 +32,25 @@ const chatSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    usage: {
+        promptTokens: {
+            type: Number,
+            default: 0
+        },
+
+        completionTokens: {
+            type: Number,
+            default: 0
+        },
+
+        totalTokens: {
+            type: Number,
+            default: 0
+        }
+    }
 },{timestamps: true});
+
+chatSchema.index({userId: 1, updatedAt: -1});
 
 const Chat = mongoose.model("chatinfo",chatSchema);
 export default Chat;

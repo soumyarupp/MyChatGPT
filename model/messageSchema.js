@@ -19,8 +19,13 @@ const massageSchema = new mongoose.Schema({
     contain: {
         type: String,
         required: true
-    },
+    }
+
 },{timestamps: true});
+
+messageSchema.index({ chatId: 1, createdAt: 1 });
+messageSchema.index({ userId: 1, createdAt: -1 });
+
 
 const Massage = mongoose.model("massage",massageSchema);
 export default Massage;
