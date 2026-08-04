@@ -81,11 +81,66 @@ const signUp = async (req,res) => {
 
 }
 
-const login = async (req,res) => {
-    res.send("Login page");
+const logIn = async (req,res) => {
+    try {
+        const {email,password} = req.body;
+        console.log(req.body);
+        
+
+        //checked email and password are fill or not
+        if(!email || !password){
+            res.status(400).json({
+                message: "Some filed are missing!"
+            });
+            return;
+        }
+
+        // email is checked
+        const userData = await User.findOne({email: email});
+        if(!userData){
+            res.status(401).json({
+                message: "User not exist!"
+            });
+            return;
+        }
+
+        //password is checked
+        const isTrue = await bcrypt.compare(password,userData.password);
+        console.log(isTrue);
+        
+        if(!isTrue){
+            res.status(401).json({
+                message: "Wrong Password!"
+            });
+            return;
+        }
+
+        // JWT token create
+        const token = await createToken(userData._id,email);
+        res.cookie("token",token,cookiesOption);
+
+        res.status(200).json({
+            message: "User Login SuccessFully",
+            user: {
+                name: userData.name,
+                age: userData.age,
+                email: userData.email
+            }
+        });
+
+
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Intarnal Server Error!"
+        })
+    }
 }
+
+
 const logOut = async (req,res) => {
     res.send("LogOut page");
 }
 
-export {profile,signUp,login,logOut}
+export {profile,signUp,logIn,logOut}
