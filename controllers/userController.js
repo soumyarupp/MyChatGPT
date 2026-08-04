@@ -140,7 +140,14 @@ const logIn = async (req,res) => {
 
 
 const logOut = async (req,res) => {
-    res.send("LogOut page");
+    // logout
+    res.clearCookie("token",{
+        httpOnly: true,
+        secure: false,
+    });
+    res.status(200).json({
+        message: "User Logged Out Successfully"
+    });
 }
 
 export {profile,signUp,logIn,logOut}
