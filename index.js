@@ -2,6 +2,7 @@ import express from "express";
 import connectDB from "./config/mdDatabase.js";
 import dotenv from "dotenv";
 import userRouter from "./routes/userRouter.js";
+import cookieParser from "cookie-parser";
 
 
 dotenv.config();
@@ -9,6 +10,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser())
 
 app.use("/user",userRouter);
 

@@ -1,7 +1,6 @@
 import User from "../model/userSchema.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import cookieParser from "cookie-parser";
 
 
 const createToken = async (id,email) => {
@@ -20,7 +19,23 @@ const cookiesOption = {
 }
 
 const profile = async (req,res) => {
-    res.send("User Profile Page");
+     try{
+        res.status(200).json({
+            message: "User Data",
+            name: req.varifyUser.name,
+            age: req.varifyUser.age,
+            usage: req.varifyUser.usage,
+            email: req.varifyUser.email
+        })
+
+    }
+    catch(error){
+
+        console.log(error);
+        res.status(500).json({
+            message: "Internal Server error"
+        })
+    }
 }
 const signUp = async (req,res) => {
     try {
