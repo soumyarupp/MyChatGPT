@@ -13,7 +13,6 @@ const userInfo = new mongoose.Schema({
         type: Number,
         min: 6,
         max: 100,
-        required: true
     },
     email: {
         type: String,

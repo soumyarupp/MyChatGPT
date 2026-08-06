@@ -1,6 +1,7 @@
 import User from "../model/userSchema.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { signupSchema, loginSchema } from "../validators/userValidators.js";
 
 
 const createToken = async (id,email) => {
@@ -39,19 +40,29 @@ const profile = async (req,res) => {
 }
 const signUp = async (req,res) => {
     try {
-        const {name,age,email,password} = req.body;
-        console.log(name);
+        // const {name,age,email,password} = req.body;
+        // console.log(name);
         
-        if(!name || !age || !email || !password){
+        // if(!name || !age || !email || !password){
+        //     res.status(400).json({
+        //         message: "Some filed are missing!"
+        //     });
+        //     return;
+        // }
+
+        // console.log(name);
+
+        // validate all this data
+        const result = signupSchema.safeParse(req.body);
+        if(!result.success){
             res.status(400).json({
-                message: "Some filed are missing!"
-            });
+                message: result.error.issues[0].message
+            })
             return;
         }
 
-        console.log(name);
 
-        const userExist = await User.findOne({email: email});
+        const userExist = await User.findOne({email: result.data.email});
         if(userExist){
             console.log(userExist);
             
@@ -61,16 +72,16 @@ const signUp = async (req,res) => {
             return;
         }
 
-        const hashPassword = await bcrypt.hash(password,12);
+        const hashPassword = await bcrypt.hash(result.data.password,12);
         const newUser = User.create({
-            name: name,
-            age: age,
-            email: email,
+            name: result.data.name,
+            age: result.data.age,
+            email: result.data.email,
             password: hashPassword
         });
 
 
-        const token = await createToken(newUser._id,email);
+        const token = await createToken(newUser._id,result.data.email);
         res.cookie("token",token,cookiesOption)
         console.log(token);
         
@@ -78,9 +89,9 @@ const signUp = async (req,res) => {
         res.status(201).json({
             message: "User Created SuccessFully",
             user: {
-                name: name,
-                age: age,
-                email: email
+                name: result.data.name,
+                age: result.data.age,
+                email: result.data.email
             }
         });
 
@@ -98,20 +109,33 @@ const signUp = async (req,res) => {
 
 const logIn = async (req,res) => {
     try {
-        const {email,password} = req.body;
-        console.log(req.body);
+        // const {email,password} = req.body;
+        // console.log(req.body);
         
 
-        //checked email and password are fill or not
-        if(!email || !password){
+        // //checked email and password are fill or not
+        // if(!email || !password){
+        //     res.status(400).json({
+        //         message: "Some filed are missing!"
+        //     });
+        //     return;
+        // }
+
+
+        // validate all this data
+        const result = loginSchema.safeParse(req.body);
+        console.log(result);
+        
+        if(!result.success){
             res.status(400).json({
-                message: "Some filed are missing!"
+                message: result.error.issues[0].message
             });
             return;
         }
 
+
         // email is checked
-        const userData = await User.findOne({email: email});
+        const userData = await User.findOne({email: result.data.email});
         if(!userData){
             res.status(401).json({
                 message: "User not exist!"
@@ -120,7 +144,7 @@ const logIn = async (req,res) => {
         }
 
         //password is checked
-        const isTrue = await bcrypt.compare(password,userData.password);
+        const isTrue = await bcrypt.compare(result.data.password,userData.password);
         console.log(isTrue);
         
         if(!isTrue){
@@ -131,7 +155,7 @@ const logIn = async (req,res) => {
         }
 
         // JWT token create
-        const token = await createToken(userData._id,email);
+        const token = await createToken(userData._id,userData.email);
         res.cookie("token",token,cookiesOption);
 
         res.status(200).json({
