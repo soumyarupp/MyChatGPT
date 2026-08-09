@@ -3,6 +3,7 @@ import connectDB from "./config/mdDatabase.js";
 import dotenv from "dotenv";
 import userRouter from "./routes/userRouter.js";
 import cookieParser from "cookie-parser";
+import chatRouter from "./routes/chatRouter.js";
 
 
 dotenv.config();
@@ -12,11 +13,16 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser())
 
-app.use("/user",userRouter);
 
 app.get("/",(req,res)=>{
     res.send("Hello World");
 })
+
+app.use("/user",userRouter);
+app.use("/chat",chatRouter)
+
+
+
 
 
 const startServer = async () => {
