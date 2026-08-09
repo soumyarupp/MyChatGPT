@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import userRouter from "./routes/userRouter.js";
 import cookieParser from "cookie-parser";
 import chatRouter from "./routes/chatRouter.js";
+import messageRouter from "./routes/messageRouter.js";
 
 
 dotenv.config();
@@ -19,7 +20,8 @@ app.get("/",(req,res)=>{
 })
 
 app.use("/user",userRouter);
-app.use("/chat",chatRouter)
+app.use("/chat",chatRouter);
+app.use("/msg",messageRouter);
 
 
 
