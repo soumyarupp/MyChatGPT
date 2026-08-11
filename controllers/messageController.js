@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Chat from "../model/chatSchema.js";
 import Massage from "../model/messageSchema.js";
 
@@ -32,11 +33,28 @@ const sendMessage = async (req,res) => {
         const {chatId} = req.params;
         const {content} = req.body;
 
+        //Validate message content
         if(!content || content.trim() === ""){
             return res.status(400).json({
                 message: "You didn't send any message"
             });
         }
+
+        // validate chatId
+        if(!mongoose.Types.ObjectId.isValid(chatId)){
+                return res.status(400).json({
+                    message: "Invalid chat id"
+                })
+            }
+
+        //Existing chat case
+        if(!chatId){
+            const newChat = await Chat.create({
+                userId: req.user._id,
+            });
+            chatId = newChat._id;
+        }
+
 
         // verfiy that chatID belongs to the particular user
         const chat = await Chat.findOne({_id: chatId, userId: req.varifyUser._id});
@@ -52,7 +70,7 @@ const sendMessage = async (req,res) => {
             chatId: chatId,
             userId: req.varifyUser._id,
             role: "user",
-            contain: content
+            contain: content.trim()
         });
 
         // sent this message to model..
@@ -64,7 +82,7 @@ const sendMessage = async (req,res) => {
             chatId: chatId,
             userId: req.varifyUser._id,
             role: "assistant",
-            contain: modelAns
+            contain: modelAns.trim()
         });
 
         //reply sent to user
