@@ -2,6 +2,8 @@ import User from "../model/userSchema.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { signupSchema, loginSchema } from "../validators/userValidators.js";
+import Massage from "../model/messageSchema.js";
+import Chat from "../model/chatSchema.js";
 
 
 const createToken = async (id,email) => {
@@ -189,4 +191,24 @@ const logOut = async (req,res) => {
     });
 }
 
-export {profile,signUp,logIn,logOut}
+const profileDelete = async (req,res) => {
+    const {userId} = req.body;
+    const chats = Chat.find({userId: userId});
+    for (const element of chats) {
+        await Massage.deleteMany({chatId: element._id});
+        await Chat.deleteOne({_id: element._id})
+    }
+    await User.deleteOne({_id: userId});
+
+    // clear cookie
+    res.clearCookie("token",{
+        httpOnly: true,
+        secure: false,
+    });
+
+    res.status(200).json({
+        message: "User Deleted"
+    })
+}
+
+export {profile,signUp,logIn,logOut,profileDelete}
