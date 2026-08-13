@@ -22,22 +22,23 @@ const recentChat = async (req,res) => {
 }
 const createChat = async (req,res) => {
     try {
-        const {model} = req.body;
+        const {model,topic} = req.body;
         if(!model){
             return res.status(400).json({
                 messages: "Model name is missing"
             })
         }
 
-        const user = Chat.findOne({userId: req.varifyUser._id, model: model});
-        if(!user){
-            return res.status(400).json({
-                messages: "Invalid Model!"
-            });
-        }
+        // limited model accese
+        // const user = Chat.findOne({userId: req.varifyUser._id, model: model});
+        // if(!user){
+        //     return res.status(400).json({
+        //         messages: "Invalid Model!"
+        //     });
+        // }
 
-        const userTopic = "SIH 2026";
-        const createChat = Chat.create({userId: req.varifyUser._id, model: user.model, topic: userTopic});
+        // const userTopic = "SIH 2026";
+        const createChat = await Chat.create({userId: req.varifyUser._id, model: model, topic});
 
         res.status(201).json({
             chatId: createChat._id,
