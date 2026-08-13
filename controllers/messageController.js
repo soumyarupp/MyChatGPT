@@ -30,8 +30,8 @@ const getMessage = async (req,res) => {
 
 const sendMessage = async (req,res) => {
     try {
-        const {chatId} = req.params;
-        const {content} = req.body;
+        let {chatId} = req.params;
+        const {content,model} = req.body;
 
         //Validate message content
         if(!content || content.trim() === ""){
@@ -40,27 +40,29 @@ const sendMessage = async (req,res) => {
             });
         }
 
+        //Existing chat case
+        if(!chatId){
+            const newChat = await Chat.create({
+                userId: req.varifyUser._id,
+                model
+            });
+            chatId = newChat._id;
+        }
+
         // validate chatId
         if(!mongoose.Types.ObjectId.isValid(chatId)){
                 return res.status(400).json({
                     message: "Invalid chat id"
                 })
-            }
-
-        //Existing chat case
-        if(!chatId){
-            const newChat = await Chat.create({
-                userId: req.user._id,
-            });
-            chatId = newChat._id;
         }
-
+        
+    
 
         // verfiy that chatID belongs to the particular user
         const chat = await Chat.findOne({_id: chatId, userId: req.varifyUser._id});
 
         if(!chat){
-            return req.status(404).json({
+            return res.status(404).json({
                 message: "invalid chatId"
             })
         }
@@ -74,7 +76,7 @@ const sendMessage = async (req,res) => {
         });
 
         // sent this message to model..
-        const modelAns = "hello";
+        const modelAns = "AI Reply";
 
         // store model ans in database
 
@@ -86,7 +88,7 @@ const sendMessage = async (req,res) => {
         });
 
         //reply sent to user
-        res.status(201).json({
+        res.status(200).json({
             message: modelAns
         });
 
