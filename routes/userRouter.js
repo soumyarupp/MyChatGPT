@@ -10,7 +10,7 @@ userRouter.get("/profile",authUserMiddleware,profile);
 userRouter.post("/signup",signUp);
 userRouter.get("/login",logIn);
 userRouter.get("/logout",logOut);
-userRouter.delete("/delete",profileDelete)
+userRouter.delete("/delete",authUserMiddleware,profileDelete)
 // ....
 
 

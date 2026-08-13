@@ -13,16 +13,24 @@ const authUserMiddleware = async (req,res,next) => {
             return;
         }
 
-        const payload = await jwt.verify(token,process.env.JWT_SECRET);
-        console.log(payload);
-        
-        // token are not valid
-        if(!payload){
-            res.status(404).json({
-                message: "User Doesnt Exist"
-            })
-            return;
+        let payload;
+        try {
+            payload = await jwt.verify(token,process.env.JWT_SECRET);
+
+        } catch (error) {
+            return res.status(401).json({
+                message: "Invalid or expired token"
+            });
         }
+       
+        
+        // // token are not valid
+        // if(!payload){
+        //     res.status(404).json({
+        //         message: "User Doesnt Exist"
+        //     })
+        //     return;
+        // }
         const existingUser = await User.findOne({email: payload.email});
 
         // i create another object field inside res object,

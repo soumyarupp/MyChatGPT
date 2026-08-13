@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const massageSchema = new mongoose.Schema({
+const messageSchema = new mongoose.Schema({
     chatId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Chat",
@@ -27,5 +27,5 @@ messageSchema.index({ chatId: 1, createdAt: 1 });
 messageSchema.index({ userId: 1, createdAt: -1 });
 
 
-const Massage = mongoose.model("massage",massageSchema);
+const Massage = mongoose.model("massage",messageSchema);
 export default Massage;

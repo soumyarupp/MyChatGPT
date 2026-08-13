@@ -192,8 +192,12 @@ const logOut = async (req,res) => {
 }
 
 const profileDelete = async (req,res) => {
-    const {userId} = req.body;
-    const chats = Chat.find({userId: userId});
+    // const {userId} = req.body;
+    const userId = req.varifyUser._id;
+
+    const chats = await Chat.find({userId: userId});
+    console.log(chats);
+    
     for (const element of chats) {
         await Massage.deleteMany({chatId: element._id});
         await Chat.deleteOne({_id: element._id})
