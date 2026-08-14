@@ -1,4 +1,4 @@
-const resetUsage = async (user) => {
+export const resetUsage = async (user) => {
     const now = new Date();
     if(now > user.usage.resetAt){
         user.usage.resetAt = new Date(Date.now() + 1000*60*60*5);
@@ -7,16 +7,14 @@ const resetUsage = async (user) => {
     }
 }
 
-const hasTokenLimitReached = async (user) => {
+export const hasTokenLimitReached = async (user) => {
     if(user.usage.totalTokenUsed > process.env.tokenLimit){
         return;
     }
 }
 
-const addUserTokenUsage = async (user,totalTokens) => {
+export const addUserTokenUsage = async (user,totalTokens) => {
     user.usage.tokenUsed += totalTokens;
     user.usage.totalTokenUsed += totalTokens;
     await user.save();
 }
-
-export {resetUsage, hasTokenLimitReached, addUserTokenUsage};

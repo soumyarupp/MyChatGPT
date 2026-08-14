@@ -8,7 +8,7 @@ Dont use abusive language, if user ask question related to something which
 can harm other, dont answer it.
 `;
 
-const buildMessagesForAI = async (chat,oldMessages,currentMessage) => {
+const buildMessagesForAI = async ({chat,oldMessages,currentMessage}) => {
     const messages = [
         {
             role: "system",

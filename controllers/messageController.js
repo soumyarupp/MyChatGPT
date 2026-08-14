@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 import Chat from "../model/chatSchema.js";
 import Massage from "../model/messageSchema.js";
+import generateAIResponse from "../service/openRouterService.js";
+import buildMessagesForAI from "../utils/chatContext.js";
+import addChatTokenUsage from "../utils/tokenUsage.js";
+import { resetUsage, hasTokenLimitReached, addUserTokenUsage } from "../utils/userUsage.js";
+import updateSummaryIfNeeded from "../service/summaryService.js";
 
 const getMessage = async (req,res) => {
     try {
@@ -67,31 +72,52 @@ const sendMessage = async (req,res) => {
             })
         }
 
+        // reset token and token limit reached checked
+        await resetUsage(req.varifyUser);
+        await hasTokenLimitReached(req.varifyUser);
+
+        // sent this message to model..
+        const oldMessages = await Message.find({
+            chatId: chat._id,
+        })
+        .sort({ createdAt: 1 })
+        .skip(chat.summarizedTillMessageNumber);
+
+        const messageForAi = buildMessagesForAI({chat,oldMessages,currentMessage: content.trim()});
+        const {aiReply,usage} = await generateAIResponse(model,messageForAi);
+
         // create user message in database
-        await Massage.create({
+        const userMessage = await Massage.create({
             chatId: chatId,
             userId: req.varifyUser._id,
             role: "user",
             contain: content.trim()
         });
 
-        // sent this message to model..
-        const modelAns = "AI Reply";
-
         // store model ans in database
-
-        await Massage.create({
+        const assistantMessage = await Massage.create({
             chatId: chatId,
             userId: req.varifyUser._id,
             role: "assistant",
             contain: modelAns.trim()
         });
 
+        chat.messageCount += 2;
+        await addChatTokenUsage(chat,usage);
+        await addUserTokenUsage(req.varifyUser,usage.totalTokens);
+
         //reply sent to user
-        res.status(200).json({
-            message: modelAns
+        res.status(201).json({
+            message: "Message sent successfully",
+            chatId: chat._id,
+            reply: aiReply,
+            usage,
+            userMessage,
+            assistantMessage,
         });
 
+        await updateSummaryIfNeeded(chatId);
+        
         
     } catch (error) {
         console.log(error);
