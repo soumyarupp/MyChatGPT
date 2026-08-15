@@ -47,8 +47,8 @@ const updateSummaryIfNeeded = async (chatId) => {
     await chat.save();
 
     const user = await User.findOne({_id: chat.userId});
-    user.usage?.tokenUsed += usage.totalTokens;
-    user.usage?.totalTokenUsed += usage.totalTokens;
+    user.usage.tokenUsed += usage.totalTokens;
+    user.usage.totalTokenUsed += usage.totalTokens;
     await user.save();
 }
 

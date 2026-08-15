@@ -15,6 +15,7 @@ const buildMessagesForAI = async ({chat,oldMessages,currentMessage}) => {
             content: SYSTEM_PROMPT
         },
     ];
+    
     if(chat.summary || chat.summary.trim() !== ""){
         messages.push({
             role: "system",
@@ -22,15 +23,19 @@ const buildMessagesForAI = async ({chat,oldMessages,currentMessage}) => {
         });
     }
     for(const msg of oldMessages) {
+        console.log(msg);
+        
         messages.push({
             role: msg.role,
-            content: msg.content,
+            content: msg.contain,
         });
     }
     messages.push({
         role: "user",
         content: currentMessage
     })
+    console.log(messages);
+    
     return messages
 }
 

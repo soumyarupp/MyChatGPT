@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Chat from "../model/chatSchema.js";
-import Massage from "../model/messageSchema.js";
+import Message from "../model/messageSchema.js";
 import generateAIResponse from "../service/openRouterService.js";
 import buildMessagesForAI from "../utils/chatContext.js";
 import addChatTokenUsage from "../utils/tokenUsage.js";
@@ -18,7 +18,7 @@ const getMessage = async (req,res) => {
             });
         }
 
-        const messages = await Massage.find({chatId: chatId}).select("role contain").sort({createdAt: 1});
+        const messages = await Message.find({chatId: chatId}).select("role contain").sort({createdAt: 1});
 
         res.status(200).json({
             messages: "Your are all messages are here",
@@ -83,11 +83,12 @@ const sendMessage = async (req,res) => {
         .sort({ createdAt: 1 })
         .skip(chat.summarizedTillMessageNumber);
 
-        const messageForAi = buildMessagesForAI({chat,oldMessages,currentMessage: content.trim()});
-        const {aiReply,usage} = await generateAIResponse(model,messageForAi);
+        
+        const messages = await buildMessagesForAI({chat,oldMessages,currentMessage: content.trim()});
+        const {aiReply,usage} = await generateAIResponse({model,messages});
 
         // create user message in database
-        const userMessage = await Massage.create({
+        const userMessage = await Message.create({
             chatId: chatId,
             userId: req.varifyUser._id,
             role: "user",
@@ -95,11 +96,11 @@ const sendMessage = async (req,res) => {
         });
 
         // store model ans in database
-        const assistantMessage = await Massage.create({
+        const assistantMessage = await Message.create({
             chatId: chatId,
             userId: req.varifyUser._id,
             role: "assistant",
-            contain: modelAns.trim()
+            contain: aiReply.trim()
         });
 
         chat.messageCount += 2;

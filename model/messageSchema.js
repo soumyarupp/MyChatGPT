@@ -27,5 +27,5 @@ messageSchema.index({ chatId: 1, createdAt: 1 });
 messageSchema.index({ userId: 1, createdAt: -1 });
 
 
-const Massage = mongoose.model("massage",messageSchema);
-export default Massage;
+const Message = mongoose.model("massage",messageSchema);
+export default Message;

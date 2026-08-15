@@ -1,11 +1,11 @@
 import openrouter from "../config/openRouter.js";
 
-const generateAIResponse = async (model, message) => {
+const generateAIResponse = async ({model, messages}) => {
 
     const completion = await openrouter.chat.send({
         chatRequest: {
             model,
-            messages
+            messages,
         },
     });
 
@@ -16,13 +16,13 @@ const generateAIResponse = async (model, message) => {
 
     const promptTokens = completion.usage?.promptTokens || 0;
     const completionTokens = completion.usage?.completionTokens || 0;
-
+    const totalTokens  = promptTokens + completionTokens;
     return {
         aiReply,
         usage: {
             promptTokens,
             completionTokens,
-            totalTokens = promptTokens + completionTokens
+            totalTokens
         }    
     }
 }
